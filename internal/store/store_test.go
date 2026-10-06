@@ -80,7 +80,7 @@ func TestPrune(t *testing.T) {
 		entry("expires-today", "2026-10-03", "2026-10-06"),
 		entry("expires-tomorrow", "2026-10-04", "2026-10-07"),
 	}}
-	pool.Prune(now)
+	pool.Prune(now, 10)
 	if len(pool.Entries) != 2 || pool.Entries[0].Greeting.ID != "evergreen" || pool.Entries[1].Greeting.ID != "expires-tomorrow" {
 		t.Errorf("after prune: %+v", pool.Entries)
 	}
@@ -354,5 +354,36 @@ func TestSeedBuiltinsSkipsOnesSeenBefore(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestPruneDropsTheOldestEvergreenBeyondTheLimit(t *testing.T) {
+	kept := entry("kept-old", "2026-01-01", "")
+	kept.Kept = true
+	pool := &Pool{Entries: []Entry{
+		kept,
+		entry("builtin-old", builtinAdded, ""),
+		entry("evergreen-1", "2026-09-01", ""),
+		entry("topical", "2026-10-05", "2026-10-08"),
+		entry("evergreen-2", "2026-09-02", ""),
+		entry("evergreen-3", "2026-09-03", ""),
+		entry("evergreen-4", "2026-09-04", ""),
+	}}
+	ids := func() string {
+		var out []string
+		for _, e := range pool.Entries {
+			out = append(out, e.Greeting.ID)
+		}
+		return strings.Join(out, " ")
+	}
+
+	pool.Prune(now, 4)
+	if got, want := ids(), "kept-old builtin-old evergreen-1 topical evergreen-2 evergreen-3 evergreen-4"; got != want {
+		t.Errorf("at the limit nothing should drop:\n got %s\nwant %s", got, want)
+	}
+
+	pool.Prune(now, 2)
+	if got, want := ids(), "kept-old builtin-old topical evergreen-3 evergreen-4"; got != want {
+		t.Errorf("over the limit:\n got %s\nwant %s", got, want)
 	}
 }

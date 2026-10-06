@@ -24,7 +24,7 @@ func TestMissingFileGivesDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.Model != "claude-opus-5-5" || !cfg.Cull || cfg.ExpiryDays != 3 || !cfg.ShowSource {
+	if cfg.Model != "claude-opus-5-5" || !cfg.Cull || cfg.ExpiryDays != 3 || cfg.EvergreenLimit != 200 || !cfg.ShowSource {
 		t.Errorf("unexpected defaults: %+v", cfg)
 	}
 	want := []string{"programming", "international", "culture", "uk", "evergreen"}
@@ -83,6 +83,7 @@ url = "https://example.com/football.xml"
 func TestInvalidConfig(t *testing.T) {
 	tests := map[string]string{
 		"expiry_days = 0":            "expiry_days",
+		"evergreen_limit = 0":        "evergreen_limit",
 		"[mix]\nfootball = 3":        "mix.football has no feeds",
 		"[mix]\nuk = -1":             "must not be negative",
 		"[mix]\nuk = 0":              "asks for no greetings",

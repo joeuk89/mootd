@@ -19,6 +19,7 @@ type Config struct {
 	// Cull asks for half as many greetings again, then has a second call score them and keeps the best.
 	Cull            bool     `toml:"cull"`
 	ExpiryDays      int      `toml:"expiry_days"`
+	EvergreenLimit  int      `toml:"evergreen_limit"`
 	ShowSource      bool     `toml:"show_source"`
 	SkipTerminals   []string `toml:"skip_terminals"`
 	ClaudeBin       string   `toml:"claude_bin"`
@@ -41,7 +42,9 @@ func Default() Config {
 		Model:      "claude-opus-5-5",
 		Cull:       true,
 		ExpiryDays: 3,
-		ShowSource: true,
+		// About seven weeks of evergreen greetings at the default mix.
+		EvergreenLimit: 200,
+		ShowSource:     true,
 		Mix: map[string]int{
 			"programming":      4,
 			"international":    4,
@@ -119,6 +122,9 @@ func LoadFile(path string) (Config, error) {
 func (c Config) validate() error {
 	if c.ExpiryDays < 1 {
 		return errors.New("expiry_days must be at least 1")
+	}
+	if c.EvergreenLimit < 1 {
+		return errors.New("evergreen_limit must be at least 1")
 	}
 	fed := map[string]bool{}
 	for _, f := range c.Feeds {

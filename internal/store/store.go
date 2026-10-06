@@ -23,7 +23,9 @@ import (
 const (
 	dateLayout    = "2006-01-02"
 	retryInterval = time.Hour
-	logDays       = 14
+	// builtinAdded stands in for the added date of a greeting that shipped with the program.
+	builtinAdded = "builtin"
+	logDays      = 14
 )
 
 type Entry struct {
@@ -205,7 +207,7 @@ func (s *Store) SeedBuiltins(p *Pool, version int, greetings []greeting.Greeting
 	var fresh []Entry
 	for _, g := range greetings {
 		if !known[g.ID] {
-			fresh = append(fresh, Entry{Greeting: g, Added: "builtin"})
+			fresh = append(fresh, Entry{Greeting: g, Added: builtinAdded})
 		}
 	}
 	p.Entries = append(p.Entries, fresh...)
@@ -358,9 +360,26 @@ func (s *Store) OpenLog(now time.Time) (*os.File, error) {
 	return os.OpenFile(filepath.Join(dir, now.Format(dateLayout)+".log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 }
 
-func (p *Pool) Prune(now time.Time) {
+// Prune drops expired greetings, then the oldest evergreen ones beyond evergreenLimit.
+// Kept and built-in greetings do not count towards the limit and are never dropped.
+func (p *Pool) Prune(now time.Time, evergreenLimit int) {
 	today := now.Format(dateLayout)
 	p.Entries = slices.DeleteFunc(p.Entries, func(e Entry) bool { return e.expired(today) })
+
+	excess := -evergreenLimit
+	for _, e := range p.Entries {
+		if e.limited() {
+			excess++
+		}
+	}
+	// Entries are stored oldest first, so the first ones found are the ones to drop.
+	p.Entries = slices.DeleteFunc(p.Entries, func(e Entry) bool {
+		if excess > 0 && e.limited() {
+			excess--
+			return true
+		}
+		return false
+	})
 }
 
 // Pick chooses the next greeting to show: today's unseen first, then unseen topical
@@ -414,6 +433,12 @@ func (p *Pool) SetWindow(window, id string) {
 		}
 	}
 	p.Windows[window] = id
+}
+
+// limited reports whether the entry is a generated evergreen greeting, the only kind
+// the evergreen limit applies to.
+func (e *Entry) limited() bool {
+	return e.Expires == "" && !e.Kept && e.Added != builtinAdded
 }
 
 func (e *Entry) expired(today string) bool {

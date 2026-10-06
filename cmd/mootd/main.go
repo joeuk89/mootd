@@ -124,7 +124,7 @@ func show() error {
 			generationDue = true
 		}
 		failing = p.Generation.FailingFor(now) >= failureWarningAfter
-		p.Prune(now)
+		p.Prune(now, cfg.EvergreenLimit)
 		fits := func(g greeting.Greeting) bool { return render.Fits(g, opts, rows) }
 		entry := p.Pick(now, fits, rand.Shuffle)
 		if entry == nil {

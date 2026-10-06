@@ -60,7 +60,7 @@ mootd init
 3. **Claude writes more greetings than needed.** A second call scores each one for humour and for how well the art reads, and mootd keeps the best in each category.
 4. **Printing is fast.** Showing a greeting takes about 15 milliseconds, because it only reads a file.
 
-Greetings about the news stay in rotation for three days. Timeless ones, and any you keep, stay for good. You see every unseen greeting before anything repeats.
+Greetings about the news stay in rotation for three days. The newest 200 timeless ones stay too; older ones drop out as new ones arrive. Greetings you keep, and the built-in set, stay for good. You see every unseen greeting before anything repeats.
 
 ## Settings
 
@@ -71,6 +71,7 @@ Run `mootd config` to edit `~/.config/mootd/config.toml`. The file lists every s
 | `model` | `claude-opus-5-5` | The model that writes and scores greetings |
 | `effort` | model default | `low` is three times faster and cheaper, but draws plainer art |
 | `[mix]` | 4 per category | How many greetings to keep per category each day |
+| `evergreen_limit` | 200 | How many timeless greetings stay in rotation |
 | `[[feeds]]` | nine news feeds | The RSS or Atom feeds to read, each with a category |
 | `style`, `interests` | empty | Steer the humour in your own words |
 | `skip_terminals` | none | Terminal programs that should stay quiet, such as `vscode` |

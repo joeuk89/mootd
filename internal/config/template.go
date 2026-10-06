@@ -25,6 +25,10 @@ const templateHead = `# mootd settings.
 # Days a topical greeting stays in rotation.
 #expiry_days = %d
 
+# How many evergreen greetings stay in rotation. Past this, the oldest drop out.
+# Greetings you keep and the built-in ones do not count and never drop out.
+#evergreen_limit = %d
+
 # Show the dim "re: ..." line that links to the news story.
 #show_source = %t
 
@@ -53,7 +57,7 @@ const templateHead = `# mootd settings.
 func Template() string {
 	d := Default()
 	var b strings.Builder
-	fmt.Fprintf(&b, templateHead, d.Model, d.Effort, d.Cull, d.ExpiryDays, d.ShowSource)
+	fmt.Fprintf(&b, templateHead, d.Model, d.Effort, d.Cull, d.ExpiryDays, d.EvergreenLimit, d.ShowSource)
 	for _, category := range d.Categories() {
 		fmt.Fprintf(&b, "#%s = %d\n", category, d.Mix[category])
 	}
