@@ -3,6 +3,7 @@ module github.com/joeuk89/mootd
 go 1.27.1
 
 require (
+	github.com/BurntSushi/toml v1.6.0
 	github.com/mattn/go-runewidth v0.0.30
 	golang.org/x/term v0.46.0
 )

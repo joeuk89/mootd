@@ -1,6 +1,7 @@
 package store
 
 import (
+	"bufio"
 	"cmp"
 	"encoding/json"
 	"errors"
@@ -17,7 +18,11 @@ import (
 	"github.com/joeuk89/mootd/internal/greeting"
 )
 
-const dateLayout = "2006-01-02"
+const (
+	dateLayout    = "2006-01-02"
+	retryInterval = time.Hour
+	logDays       = 14
+)
 
 type Entry struct {
 	Greeting greeting.Greeting `json:"greeting"`
@@ -30,7 +35,33 @@ type Entry struct {
 type Pool struct {
 	Entries []Entry `json:"entries"`
 	// Windows maps a terminal window to the ID of the greeting it last showed.
-	Windows map[string]string `json:"windows,omitempty"`
+	Windows    map[string]string `json:"windows,omitempty"`
+	Generation Generation        `json:"generation,omitzero"`
+}
+
+type Generation struct {
+	LastAttempt time.Time `json:"last_attempt,omitzero"`
+	LastSuccess time.Time `json:"last_success,omitzero"`
+	// FailingSince is when the current run of failures began. Zero means the last run worked.
+	FailingSince time.Time `json:"failing_since,omitzero"`
+	LastError    string    `json:"last_error,omitempty"`
+}
+
+// Due reports whether today still needs a batch and the last attempt is old enough to retry.
+func (g Generation) Due(now time.Time) bool {
+	doneToday := g.LastSuccess.Format(dateLayout) == now.Format(dateLayout)
+	return !doneToday && now.Sub(g.LastAttempt) >= retryInterval
+}
+
+func (g *Generation) Record(now time.Time, err error) {
+	if err == nil {
+		g.LastSuccess, g.FailingSince, g.LastError = now, time.Time{}, ""
+		return
+	}
+	if g.FailingSince.IsZero() {
+		g.FailingSince = now
+	}
+	g.LastError = err.Error()
 }
 
 type Store struct{ dir string }
@@ -44,7 +75,10 @@ func Open() (*Store, error) {
 		}
 		base = filepath.Join(home, ".local", "share")
 	}
-	dir := filepath.Join(base, "mootd")
+	return OpenAt(filepath.Join(base, "mootd"))
+}
+
+func OpenAt(dir string) (*Store, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, err
 	}
@@ -141,6 +175,66 @@ func (s *Store) archive(entries []Entry) error {
 		}
 	}
 	return nil
+}
+
+// RecentMessages returns the messages of the last n greetings added, oldest first.
+func (s *Store) RecentMessages(n int) ([]string, error) {
+	f, err := os.Open(filepath.Join(s.dir, "archive.jsonl"))
+	if errors.Is(err, fs.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	var messages []string
+	sc := bufio.NewScanner(f)
+	sc.Buffer(nil, 1<<20)
+	for sc.Scan() {
+		var e Entry
+		if json.Unmarshal(sc.Bytes(), &e) == nil {
+			messages = append(messages, e.Greeting.Message)
+		}
+	}
+	if len(messages) > n {
+		messages = messages[len(messages)-n:]
+	}
+	return messages, sc.Err()
+}
+
+// LockGeneration takes the lock that stops two generations running at once. It
+// reports false, without waiting, when another process holds it.
+func (s *Store) LockGeneration() (release func(), ok bool, err error) {
+	f, err := os.OpenFile(filepath.Join(s.dir, "generate.lock"), os.O_CREATE|os.O_RDWR, 0o644)
+	if err != nil {
+		return nil, false, err
+	}
+	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+		f.Close()
+		if errors.Is(err, syscall.EWOULDBLOCK) {
+			return nil, false, nil
+		}
+		return nil, false, err
+	}
+	return func() { f.Close() }, true, nil
+}
+
+// OpenLog opens today's log file for appending and deletes logs older than 14 days.
+func (s *Store) OpenLog(now time.Time) (*os.File, error) {
+	dir := filepath.Join(s.dir, "logs")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return nil, err
+	}
+	oldest := now.AddDate(0, 0, -logDays).Format(dateLayout) + ".log"
+	if entries, err := os.ReadDir(dir); err == nil {
+		for _, e := range entries {
+			if e.Name() < oldest {
+				os.Remove(filepath.Join(dir, e.Name()))
+			}
+		}
+	}
+	return os.OpenFile(filepath.Join(dir, now.Format(dateLayout)+".log"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 }
 
 func (p *Pool) Prune(now time.Time) {

@@ -2,8 +2,10 @@ package store
 
 import (
 	"bufio"
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -143,5 +145,94 @@ func TestAddBatchAndUpdateRoundTrip(t *testing.T) {
 	}
 	if lines != 2 {
 		t.Errorf("archive has %d lines, want 2", lines)
+	}
+}
+
+func TestGenerationDue(t *testing.T) {
+	var g Generation
+	if !g.Due(now) {
+		t.Error("a fresh install should be due")
+	}
+
+	g.LastAttempt = now
+	if g.Due(now.Add(59 * time.Minute)) {
+		t.Error("should wait an hour between attempts")
+	}
+	if !g.Due(now.Add(time.Hour)) {
+		t.Error("should retry after an hour")
+	}
+
+	g.Record(now, errors.New("offline"))
+	g.Record(now.Add(time.Hour), errors.New("still offline"))
+	if !g.FailingSince.Equal(now) || g.LastError != "still offline" {
+		t.Errorf("after two failures: %+v", g)
+	}
+
+	g.Record(now.Add(2*time.Hour), nil)
+	if !g.FailingSince.IsZero() || g.LastError != "" {
+		t.Errorf("a success should clear the failure: %+v", g)
+	}
+	if g.Due(now.Add(10 * time.Hour)) {
+		t.Error("should not be due again on the day it succeeded")
+	}
+	if !g.Due(now.Add(24 * time.Hour)) {
+		t.Error("should be due the next day")
+	}
+}
+
+func TestRecentMessages(t *testing.T) {
+	s := &Store{dir: t.TempDir()}
+	if got, err := s.RecentMessages(5); err != nil || got != nil {
+		t.Fatalf("empty store: %v, %v", got, err)
+	}
+	batch := []greeting.Greeting{{ID: "a", Message: "one"}, {ID: "b", Message: "two"}, {ID: "c", Message: "three"}}
+	if _, err := s.AddBatch(batch, now, 3); err != nil {
+		t.Fatal(err)
+	}
+	got, err := s.RecentMessages(2)
+	if err != nil || len(got) != 2 || got[0] != "two" || got[1] != "three" {
+		t.Errorf("got %v, %v", got, err)
+	}
+}
+
+func TestLockGenerationAllowsOneHolder(t *testing.T) {
+	s := &Store{dir: t.TempDir()}
+	release, ok, err := s.LockGeneration()
+	if err != nil || !ok {
+		t.Fatalf("first lock: ok=%v err=%v", ok, err)
+	}
+	if _, ok, err := s.LockGeneration(); err != nil || ok {
+		t.Fatalf("second lock should be refused: ok=%v err=%v", ok, err)
+	}
+	release()
+	if release, ok, _ := s.LockGeneration(); !ok {
+		t.Fatal("lock should be free after release")
+	} else {
+		release()
+	}
+}
+
+func TestOpenLogDeletesOldLogs(t *testing.T) {
+	s := &Store{dir: t.TempDir()}
+	logs := filepath.Join(s.dir, "logs")
+	os.MkdirAll(logs, 0o755)
+	for _, name := range []string{"2026-09-21.log", "2026-09-22.log", "2026-10-05.log"} {
+		os.WriteFile(filepath.Join(logs, name), nil, 0o644)
+	}
+
+	f, err := s.OpenLog(now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Close()
+
+	entries, _ := os.ReadDir(logs)
+	var names []string
+	for _, e := range entries {
+		names = append(names, e.Name())
+	}
+	want := "2026-09-22.log 2026-10-05.log 2026-10-06.log"
+	if got := strings.Join(names, " "); got != want {
+		t.Errorf("logs = %s, want %s", got, want)
 	}
 }
