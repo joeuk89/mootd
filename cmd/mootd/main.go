@@ -24,6 +24,20 @@ import (
 	"github.com/joeuk89/mootd/internal/store"
 )
 
+const usage = `mootd prints an AI-written greeting each time you open a terminal.
+
+  mootd                 Print the next greeting
+  mootd keep            Keep this window's greeting for good, and ask for more like it
+  mootd nope [reason]   Drop this window's greeting, and ask for fewer like it
+  mootd open            Open this window's news story in the browser
+  mootd generate        Make a new batch now
+  mootd status          Show the pool, the last generation and any errors
+  mootd config          Edit the settings
+`
+
+// How long generation must have been failing before the greeting mentions it.
+const failureWarningAfter = 72 * time.Hour
+
 func main() {
 	if len(os.Args) < 2 {
 		// A greeting must never break or clutter shell startup, so errors stay quiet.
@@ -34,11 +48,23 @@ func main() {
 	}
 
 	var err error
-	switch os.Args[1] {
+	switch args := os.Args[2:]; os.Args[1] {
+	case "keep":
+		err = keep()
+	case "nope":
+		err = nope(strings.Join(args, " "))
+	case "open":
+		err = openSource()
 	case "generate":
 		err = runGenerate()
+	case "status":
+		err = status()
+	case "config":
+		err = editConfig()
+	case "help", "-h", "--help":
+		fmt.Print(usage)
 	default:
-		err = fmt.Errorf("unknown command %q", os.Args[1])
+		err = fmt.Errorf("unknown command %q; run \"mootd help\"", os.Args[1])
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "mootd:", err)
@@ -52,6 +78,7 @@ func show() error {
 	}
 	cfg, err := config.Load()
 	if err != nil {
+		hint("the config file has an error")
 		return err
 	}
 	if inSkippedTerminal(cfg.SkipTerminals) {
@@ -65,7 +92,7 @@ func show() error {
 	}
 
 	var picked *greeting.Greeting
-	generationDue := false
+	generationDue, failing := false, false
 	err = st.Update(func(p *store.Pool) error {
 		now := time.Now()
 		// Claiming the attempt under the pool lock means that when several terminals
@@ -74,6 +101,7 @@ func show() error {
 			p.Generation.LastAttempt = now
 			generationDue = true
 		}
+		failing = p.Generation.FailingFor(now) >= failureWarningAfter
 		p.Prune(now)
 		fits := func(g greeting.Greeting) bool { return render.Fits(g, opts, rows) }
 		entry := p.Pick(now, fits, rand.Shuffle)
@@ -93,10 +121,25 @@ func show() error {
 	if picked != nil {
 		fmt.Print(render.Render(*picked, opts))
 	}
+	if failing {
+		hint("generation is failing")
+	}
 	if generationDue {
 		return startBackgroundGeneration()
 	}
 	return nil
+}
+
+// hint prints the one line mootd allows itself at shell startup when something needs fixing.
+func hint(problem string) {
+	if !term.IsTerminal(int(os.Stdout.Fd())) {
+		return
+	}
+	line := fmt.Sprintf("mootd: %s, run \"mootd status\"", problem)
+	if opts, _ := terminalOptions(); opts.Colour != render.Plain {
+		line = "\x1b[2m" + line + "\x1b[0m"
+	}
+	fmt.Println(line)
 }
 
 func inSkippedTerminal(names []string) bool {

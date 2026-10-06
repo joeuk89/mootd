@@ -173,3 +173,20 @@ func expandHome(path string) string {
 	}
 	return filepath.Join(home, rest)
 }
+
+// Create writes the commented template to path unless a file is already there.
+func Create(path string) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
+	if errors.Is(err, fs.ErrExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.WriteString(Template())
+	return err
+}

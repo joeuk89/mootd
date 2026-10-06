@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -29,7 +30,20 @@ type Entry struct {
 	Added    string            `json:"added"`
 	// Expires is the first date the greeting is no longer shown. Empty means never.
 	Expires   string    `json:"expires,omitempty"`
+	Kept      bool      `json:"kept,omitempty"`
 	LastShown time.Time `json:"last_shown,omitzero"`
+}
+
+const (
+	Keep = "keep"
+	Nope = "nope"
+)
+
+type Feedback struct {
+	Verdict  string            `json:"verdict"`
+	Reason   string            `json:"reason,omitempty"`
+	At       time.Time         `json:"at"`
+	Greeting greeting.Greeting `json:"greeting"`
 }
 
 type Pool struct {
@@ -45,6 +59,14 @@ type Generation struct {
 	// FailingSince is when the current run of failures began. Zero means the last run worked.
 	FailingSince time.Time `json:"failing_since,omitzero"`
 	LastError    string    `json:"last_error,omitempty"`
+}
+
+// FailingFor reports how long generation has been failing, or zero if the last run worked.
+func (g Generation) FailingFor(now time.Time) time.Duration {
+	if g.FailingSince.IsZero() {
+		return 0
+	}
+	return now.Sub(g.FailingSince)
 }
 
 // Due reports whether today still needs a batch and the last attempt is old enough to retry.
@@ -84,6 +106,8 @@ func OpenAt(dir string) (*Store, error) {
 	}
 	return &Store{dir: dir}, nil
 }
+
+func (s *Store) Dir() string { return s.dir }
 
 // Update runs fn on the pool under an exclusive lock and saves the result, so
 // several terminals opening at once cannot lose each other's changes.
@@ -160,26 +184,66 @@ func (s *Store) AddBatch(greetings []greeting.Greeting, added time.Time, expiryD
 }
 
 func (s *Store) archive(entries []Entry) error {
-	if len(entries) == 0 {
+	return appendLines(filepath.Join(s.dir, "archive.jsonl"), entries)
+}
+
+// Archived finds a greeting that was once added, even if it has since expired or been removed.
+func (s *Store) Archived(id string) (Entry, bool, error) {
+	entries, err := readLines[Entry](filepath.Join(s.dir, "archive.jsonl"))
+	for _, e := range entries {
+		if e.Greeting.ID == id {
+			return e, true, err
+		}
+	}
+	return Entry{}, false, err
+}
+
+func (s *Store) AddFeedback(f Feedback) error {
+	return appendLines(filepath.Join(s.dir, "feedback.jsonl"), []Feedback{f})
+}
+
+// RecentFeedback returns up to n kept and n noped greetings, newest first. Only the
+// latest verdict on each greeting counts.
+func (s *Store) RecentFeedback(n int) (kept, noped []Feedback, err error) {
+	all, err := readLines[Feedback](filepath.Join(s.dir, "feedback.jsonl"))
+	seen := map[string]bool{}
+	for _, f := range slices.Backward(all) {
+		if seen[f.Greeting.ID] {
+			continue
+		}
+		seen[f.Greeting.ID] = true
+		switch {
+		case f.Verdict == Keep && len(kept) < n:
+			kept = append(kept, f)
+		case f.Verdict == Nope && len(noped) < n:
+			noped = append(noped, f)
+		}
+	}
+	return kept, noped, err
+}
+
+func appendLines[T any](path string, items []T) error {
+	if len(items) == 0 {
 		return nil
 	}
-	f, err := os.OpenFile(filepath.Join(s.dir, "archive.jsonl"), os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 	enc := json.NewEncoder(f)
-	for _, e := range entries {
-		if err := enc.Encode(e); err != nil {
+	for _, item := range items {
+		if err := enc.Encode(item); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// RecentMessages returns the messages of the last n greetings added, oldest first.
-func (s *Store) RecentMessages(n int) ([]string, error) {
-	f, err := os.Open(filepath.Join(s.dir, "archive.jsonl"))
+// readLines reads a file of one JSON value per line, skipping lines it cannot parse.
+// A missing file reads as empty.
+func readLines[T any](path string) ([]T, error) {
+	f, err := os.Open(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, nil
 	}
@@ -188,19 +252,50 @@ func (s *Store) RecentMessages(n int) ([]string, error) {
 	}
 	defer f.Close()
 
-	var messages []string
+	var out []T
 	sc := bufio.NewScanner(f)
 	sc.Buffer(nil, 1<<20)
 	for sc.Scan() {
-		var e Entry
-		if json.Unmarshal(sc.Bytes(), &e) == nil {
-			messages = append(messages, e.Greeting.Message)
+		var item T
+		if json.Unmarshal(sc.Bytes(), &item) == nil {
+			out = append(out, item)
 		}
 	}
-	if len(messages) > n {
-		messages = messages[len(messages)-n:]
+	return out, sc.Err()
+}
+
+// RecentMessages returns the messages of the last n greetings added, oldest first.
+func (s *Store) RecentMessages(n int) ([]string, error) {
+	entries, err := readLines[Entry](filepath.Join(s.dir, "archive.jsonl"))
+	if len(entries) > n {
+		entries = entries[len(entries)-n:]
 	}
-	return messages, sc.Err()
+	var messages []string
+	for _, e := range entries {
+		messages = append(messages, e.Greeting.Message)
+	}
+	return messages, err
+}
+
+// GenerationRunning reports whether another process holds the generation lock.
+func (s *Store) GenerationRunning() bool {
+	release, ok, err := s.LockGeneration()
+	if err != nil {
+		return false
+	}
+	if ok {
+		release()
+	}
+	return !ok
+}
+
+// LatestLog returns the path of the newest log file, or "" if there is none.
+func (s *Store) LatestLog() string {
+	entries, err := os.ReadDir(filepath.Join(s.dir, "logs"))
+	if err != nil || len(entries) == 0 {
+		return ""
+	}
+	return filepath.Join(s.dir, "logs", entries[len(entries)-1].Name())
 }
 
 // LockGeneration takes the lock that stops two generations running at once. It
@@ -267,9 +362,30 @@ func (p *Pool) Pick(now time.Time, fits func(greeting.Greeting) bool, shuffle fu
 	return candidates[0]
 }
 
+func (p *Pool) Find(id string) *Entry {
+	for i := range p.Entries {
+		if p.Entries[i].Greeting.ID == id {
+			return &p.Entries[i]
+		}
+	}
+	return nil
+}
+
+func (p *Pool) Remove(id string) {
+	p.Entries = slices.DeleteFunc(p.Entries, func(e Entry) bool { return e.Greeting.ID == id })
+}
+
+// SetWindow records which greeting a window shows. It forgets earlier windows on the
+// same terminal device: the device is only reused once those windows have closed.
 func (p *Pool) SetWindow(window, id string) {
 	if p.Windows == nil {
 		p.Windows = map[string]string{}
+	}
+	device, _, _ := strings.Cut(window, ":")
+	for other := range p.Windows {
+		if strings.HasPrefix(other, device+":") {
+			delete(p.Windows, other)
+		}
 	}
 	p.Windows[window] = id
 }
@@ -291,8 +407,10 @@ func (e *Entry) tier(today string) int {
 	}
 }
 
-// WindowKey identifies the terminal window this process runs in by the device number
-// of its terminal. It returns "" when no terminal is attached.
+// WindowKey identifies the terminal window this process runs in, as "device:session".
+// The device number alone is not enough, because the system hands a closed window's
+// device to the next window opened; the session ID tells the two apart. It returns ""
+// when no terminal is attached.
 func WindowKey() string {
 	for _, f := range []*os.File{os.Stdin, os.Stdout, os.Stderr} {
 		fd := int(f.Fd())
@@ -300,9 +418,14 @@ func WindowKey() string {
 			continue
 		}
 		var st syscall.Stat_t
-		if err := syscall.Fstat(fd, &st); err == nil {
-			return strconv.FormatUint(uint64(st.Rdev), 10)
+		if err := syscall.Fstat(fd, &st); err != nil {
+			continue
 		}
+		session, err := syscall.Getsid(0)
+		if err != nil {
+			continue
+		}
+		return strconv.FormatUint(uint64(st.Rdev), 10) + ":" + strconv.Itoa(session)
 	}
 	return ""
 }

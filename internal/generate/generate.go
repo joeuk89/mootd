@@ -20,6 +20,7 @@ import (
 const (
 	headlinesPerCategory = 15
 	alreadyToldCount     = 40
+	feedbackCount        = 15
 	// With the cull pass on, ask for this many greetings per one kept.
 	overAsk = 1.5
 	// The judge scores 1-2 for a confusing or tasteless joke, or misaligned art.
@@ -90,7 +91,11 @@ func (g *Generator) Run(ctx context.Context, now time.Time) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	system, err := generateSystem(cfg)
+	kept, noped, err := g.Store.RecentFeedback(feedbackCount)
+	if err != nil {
+		return 0, err
+	}
+	system, err := generateSystem(cfg, kept, noped)
 	if err != nil {
 		return 0, err
 	}
@@ -110,7 +115,7 @@ func (g *Generator) Run(ctx context.Context, now time.Time) (int, error) {
 		return 0, fmt.Errorf("none of the %d greetings passed validation", len(reply.Greetings))
 	}
 
-	kept := firstPerCategory(valid, cfg.Mix)
+	chosen := firstPerCategory(valid, cfg.Mix)
 	if cfg.Cull {
 		var scored struct {
 			Scores []score `json:"scores"`
@@ -121,11 +126,11 @@ func (g *Generator) Run(ctx context.Context, now time.Time) (int, error) {
 		if err != nil {
 			g.Log.Printf("cull pass failed, keeping unscored greetings: %v", err)
 		} else {
-			kept = g.best(valid, scored.Scores, cfg.Mix)
+			chosen = g.best(valid, scored.Scores, cfg.Mix)
 		}
 	}
 
-	added, err := g.Store.AddBatch(kept, now, cfg.ExpiryDays)
+	added, err := g.Store.AddBatch(chosen, now, cfg.ExpiryDays)
 	if err != nil {
 		return 0, err
 	}

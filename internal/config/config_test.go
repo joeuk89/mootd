@@ -3,6 +3,8 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"reflect"
+	"regexp"
 	"slices"
 	"strings"
 	"testing"
@@ -93,5 +95,27 @@ func TestInvalidConfig(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("config %q: error %v, want one containing %q", body, err, want)
 		}
+	}
+}
+
+func TestTemplateIsAllCommentsAndUncommentsToTheDefaults(t *testing.T) {
+	asWritten, err := LoadFile(write(t, Template()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(asWritten, Default()) {
+		t.Errorf("the untouched template should change nothing")
+	}
+
+	uncommented := regexp.MustCompile(`(?m)^#(\S)`).ReplaceAllString(Template(), "$1")
+	got, err := LoadFile(write(t, uncommented))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.SkipTerminals) == 0 {
+		got.SkipTerminals = nil
+	}
+	if !reflect.DeepEqual(got, Default()) {
+		t.Errorf("uncommented template differs from the defaults:\n got %+v\nwant %+v", got, Default())
 	}
 }

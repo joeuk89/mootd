@@ -111,7 +111,9 @@ func TestAddBatchAndUpdateRoundTrip(t *testing.T) {
 			t.Errorf("evergreen expires %q, want never", got)
 		}
 		p.Entries[0].LastShown = now
-		p.SetWindow("42", "a")
+		p.SetWindow("42:100", "b")
+		p.SetWindow("7:300", "b")
+		p.SetWindow("42:200", "a")
 		return nil
 	})
 	if err != nil {
@@ -125,8 +127,8 @@ func TestAddBatchAndUpdateRoundTrip(t *testing.T) {
 		if !p.Entries[1].LastShown.IsZero() {
 			t.Errorf("unshown entry has a last-shown time: %v", p.Entries[1].LastShown)
 		}
-		if p.Windows["42"] != "a" {
-			t.Errorf("window not saved: %v", p.Windows)
+		if len(p.Windows) != 2 || p.Windows["42:200"] != "a" || p.Windows["7:300"] != "b" {
+			t.Errorf("a window should replace earlier ones on the same device only: %v", p.Windows)
 		}
 		return nil
 	})
@@ -234,5 +236,87 @@ func TestOpenLogDeletesOldLogs(t *testing.T) {
 	want := "2026-09-22.log 2026-10-05.log 2026-10-06.log"
 	if got := strings.Join(names, " "); got != want {
 		t.Errorf("logs = %s, want %s", got, want)
+	}
+}
+
+func TestRecentFeedbackUsesTheLatestVerdictPerGreeting(t *testing.T) {
+	s := &Store{dir: t.TempDir()}
+	add := func(verdict, id, reason string) {
+		t.Helper()
+		f := Feedback{Verdict: verdict, Reason: reason, At: now, Greeting: greeting.Greeting{ID: id}}
+		if err := s.AddFeedback(f); err != nil {
+			t.Fatal(err)
+		}
+	}
+	add(Keep, "a", "")
+	add(Keep, "b", "")
+	add(Nope, "c", "too long")
+	add(Keep, "d", "")
+	add(Nope, "a", "changed my mind")
+
+	kept, noped, err := s.RecentFeedback(10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ids := func(items []Feedback) string {
+		var out []string
+		for _, f := range items {
+			out = append(out, f.Greeting.ID)
+		}
+		return strings.Join(out, " ")
+	}
+	if ids(kept) != "d b" || ids(noped) != "a c" {
+		t.Errorf("kept = %q, noped = %q", ids(kept), ids(noped))
+	}
+	if noped[0].Reason != "changed my mind" {
+		t.Errorf("reason = %q", noped[0].Reason)
+	}
+
+	kept, noped, _ = s.RecentFeedback(1)
+	if ids(kept) != "d" || ids(noped) != "a" {
+		t.Errorf("with a limit of 1: kept = %q, noped = %q", ids(kept), ids(noped))
+	}
+}
+
+func TestArchivedFindsGreetingsThatLeftThePool(t *testing.T) {
+	s := &Store{dir: t.TempDir()}
+	if _, err := s.AddBatch([]greeting.Greeting{{ID: "a", Category: "uk", Message: "hello"}}, now, 3); err != nil {
+		t.Fatal(err)
+	}
+	err := s.Update(func(p *Pool) error {
+		if p.Find("a") == nil {
+			t.Error("Find should see the new greeting")
+		}
+		p.Remove("a")
+		if p.Find("a") != nil {
+			t.Error("Find should not see a removed greeting")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	entry, ok, err := s.Archived("a")
+	if err != nil || !ok || entry.Greeting.Message != "hello" || entry.Expires != "2026-10-09" {
+		t.Errorf("archived = %+v, ok=%v, err=%v", entry, ok, err)
+	}
+	if _, ok, _ := s.Archived("missing"); ok {
+		t.Error("found a greeting that was never added")
+	}
+}
+
+func TestFailingFor(t *testing.T) {
+	var g Generation
+	if g.FailingFor(now) != 0 {
+		t.Error("a fresh install is not failing")
+	}
+	g.Record(now, errors.New("offline"))
+	if got := g.FailingFor(now.Add(72 * time.Hour)); got != 72*time.Hour {
+		t.Errorf("failing for %v", got)
+	}
+	g.Record(now, nil)
+	if g.FailingFor(now.Add(time.Hour)) != 0 {
+		t.Error("a success should stop the clock")
 	}
 }

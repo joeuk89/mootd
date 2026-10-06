@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/joeuk89/mootd/internal/config"
+	"github.com/joeuk89/mootd/internal/greeting"
 	"github.com/joeuk89/mootd/internal/store"
 )
 
@@ -324,5 +325,43 @@ func TestRunWithoutHeadlines(t *testing.T) {
 	}
 	if prompt := h.read("generate.prompt"); strings.Contains(prompt, "## news") || !strings.Contains(prompt, "\n\n- 1 evergreen\n\n") {
 		t.Errorf("prompt should ask for evergreen greetings only:\n%s", prompt)
+	}
+}
+
+func TestRunPassesFeedbackToTheModel(t *testing.T) {
+	h := newHarness(t, map[string]int{"news": 1})
+	h.gen.Config.Cull = false
+	h.reply("generate", sixCandidates())
+
+	if _, err := h.gen.Run(context.Background(), now); err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(h.read("generate.args"), "The reader's taste") {
+		t.Error("the taste section should be absent when there is no feedback")
+	}
+
+	feedback := func(verdict, subject, message, reason string) {
+		t.Helper()
+		g := greeting.Greeting{ID: message, ArtSubject: subject, Message: message}
+		if err := h.gen.Store.AddFeedback(store.Feedback{Verdict: verdict, Reason: reason, Greeting: g}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	feedback(store.Keep, "smug cat", "line one\nline two", "")
+	feedback(store.Nope, "sad robot", "an AI joke", "too many AI jokes")
+
+	if _, err := h.gen.Run(context.Background(), now); err != nil {
+		t.Fatal(err)
+	}
+	system := h.read("generate.args")
+	for _, want := range []string{
+		"# The reader's taste",
+		"- (art: smug cat) line one / line two\n",
+		"- (art: sad robot) an AI joke [their reason: too many AI jokes]\n",
+		"\n# Output\n",
+	} {
+		if !strings.Contains(system, want) {
+			t.Errorf("system prompt is missing %q", want)
+		}
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/joeuk89/mootd/internal/config"
 	"github.com/joeuk89/mootd/internal/feeds"
 	"github.com/joeuk89/mootd/internal/greeting"
+	"github.com/joeuk89/mootd/internal/store"
 )
 
 // Models overshoot length limits a little, so the prompt asks for less than validation allows.
@@ -22,7 +23,7 @@ var (
 	cullSystem string
 )
 
-func generateSystem(cfg config.Config) (string, error) {
+func generateSystem(cfg config.Config, kept, noped []store.Feedback) (string, error) {
 	tmpl, err := template.New("generate").Parse(generateTemplate)
 	if err != nil {
 		return "", err
@@ -37,8 +38,33 @@ func generateSystem(cfg config.Config) (string, error) {
 		"Evergreen":       greeting.Evergreen,
 		"Style":           cfg.Style,
 		"Interests":       cfg.Interests,
+		"Taste":           tasteSection(kept, noped),
 	})
 	return b.String(), err
+}
+
+func tasteSection(kept, noped []store.Feedback) string {
+	if len(kept) == 0 && len(noped) == 0 {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString("\n# The reader's taste\n")
+	list := func(intro string, items []store.Feedback) {
+		if len(items) == 0 {
+			return
+		}
+		fmt.Fprintf(&b, "\n%s\n\n", intro)
+		for _, f := range items {
+			fmt.Fprintf(&b, "- (art: %s) %s", f.Greeting.ArtSubject, strings.ReplaceAll(f.Greeting.Message, "\n", " / "))
+			if f.Reason != "" {
+				fmt.Fprintf(&b, " [their reason: %s]", f.Reason)
+			}
+			b.WriteString("\n")
+		}
+	}
+	list("The reader marked these as favourites. Write more in this spirit, without copying them:", kept)
+	list("The reader rejected these. Work out what they have in common and avoid it:", noped)
+	return b.String()
 }
 
 func generatePrompt(now time.Time, categories []string, headlines []feeds.Headline, ask map[string]int, told []string) string {
