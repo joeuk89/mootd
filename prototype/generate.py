@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Throwaway prototype: fetch headlines, generate a batch of greetings, validate, cull.
 
-Usage: generate.py [--count 30] [--keep 20] [--model claude-opus-5-5] [--no-cull]
+Usage: generate.py [--count 30] [--keep 20] [--model claude-opus-5-5] [--effort low]
+                   [--judge-model claude-opus-5-5] [--tag name] [--no-cull]
 Writes out/batch-<timestamp>.json and out/latest.json next to this script.
+With --tag it writes out/<tag>.json only.
 """
 
 import argparse
@@ -114,7 +116,7 @@ def fetch_headlines():
     return headlines
 
 
-def call_claude(system, prompt, schema, model):
+def call_claude(system, prompt, schema, model, effort=None):
     cmd = [
         os.environ.get("MOOTD_CLAUDE_BIN", os.path.expanduser("~/.local/bin/claude")),
         "-p",
@@ -129,6 +131,8 @@ def call_claude(system, prompt, schema, model):
         "--disable-slash-commands",
         "--no-session-persistence",
     ]
+    if effort:
+        cmd += ["--effort", effort]
     started = time.time()
     # An empty working directory keeps any project CLAUDE.md out of the call.
     with tempfile.TemporaryDirectory() as cwd:
@@ -253,6 +257,9 @@ def main():
     parser.add_argument("--count", type=int, default=30)
     parser.add_argument("--keep", type=int, default=20)
     parser.add_argument("--model", default="claude-opus-5-5")
+    parser.add_argument("--effort")
+    parser.add_argument("--judge-model", default="claude-opus-5-5")
+    parser.add_argument("--tag")
     parser.add_argument("--no-cull", action="store_true")
     args = parser.parse_args()
 
@@ -264,9 +271,13 @@ def main():
     categories = [*FEEDS, "evergreen"]
     quotas = {cat: args.count // len(categories) for cat in categories}
 
-    print(f"Generating {args.count} greetings with {args.model}...", file=sys.stderr)
+    print(f"Generating {args.count} greetings with {args.model} (effort: {args.effort or 'default'})...", file=sys.stderr)
     data, gen_stats = call_claude(
-        GENERATE_SYSTEM, build_generate_prompt(headlines, quotas), GREETING_SCHEMA, args.model
+        GENERATE_SYSTEM,
+        build_generate_prompt(headlines, quotas),
+        GREETING_SCHEMA,
+        args.model,
+        args.effort,
     )
     print(f"  {gen_stats}", file=sys.stderr)
 
@@ -288,7 +299,7 @@ def main():
     if not args.no_cull and valid:
         print("Scoring...", file=sys.stderr)
         scored, cull_stats = call_claude(
-            CULL_SYSTEM, build_cull_prompt(valid), SCORE_SCHEMA, args.model
+            CULL_SYSTEM, build_cull_prompt(valid), SCORE_SCHEMA, args.judge_model
         )
         print(f"  {cull_stats}", file=sys.stderr)
         by_id = {s["id"]: s for s in scored["scores"]}
@@ -306,14 +317,19 @@ def main():
     batch = {
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "model": args.model,
+        "effort": args.effort,
         "stats": {"generate": gen_stats, "cull": cull_stats},
         "greetings": valid,
         "rejected": rejected,
     }
     OUT_DIR.mkdir(exist_ok=True)
-    path = OUT_DIR / f"batch-{time.strftime('%Y%m%d-%H%M%S')}.json"
-    path.write_text(json.dumps(batch, indent=2, ensure_ascii=False))
-    (OUT_DIR / "latest.json").write_text(json.dumps(batch, indent=2, ensure_ascii=False))
+    body = json.dumps(batch, indent=2, ensure_ascii=False)
+    if args.tag:
+        path = OUT_DIR / f"{args.tag}.json"
+    else:
+        path = OUT_DIR / f"batch-{time.strftime('%Y%m%d-%H%M%S')}.json"
+        (OUT_DIR / "latest.json").write_text(body)
+    path.write_text(body)
     print(f"Wrote {path}", file=sys.stderr)
 
 
