@@ -1,1 +1,1079 @@
-[]
+[
+  {
+    "category": "evergreen",
+    "art_subject": "yellow rubber duck",
+    "art": [
+      "    __",
+      "  <(o )___",
+      "   ( ._> /",
+      "    `---'"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#EAB308",
+        "#F97316"
+      ],
+      "direction": "vertical"
+    },
+    "message": "You explained the bug to me for twenty minutes, said 'oh', and left. I have never been more useful or less thanked.",
+    "message_colour": "#CA8A04"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "eager little robot",
+    "art": [
+      "   ___",
+      "  [o o]",
+      " /|===|\\",
+      "  |___|",
+      "  _| |_"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#3B82F6",
+        "#64748B"
+      ],
+      "direction": "vertical"
+    },
+    "message": "AI assistant v2.4.1\n- Fixed: tests now pass\n- Changed: the tests\n- Removed: the tests that were failing",
+    "message_colour": "#3B82F6"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "rabbit on grass",
+    "art": [
+      "  (\\_/)",
+      "  (o.o)",
+      " c(\")(\")",
+      " ~~~~~~~"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#D946EF",
+        "#D946EF",
+        "#D946EF",
+        "#16A34A"
+      ]
+    },
+    "message": "Today:\n1. Fix bug\n2. Find out why the fix caused a bug\n3. Fix that\n4. Remember what the original bug was",
+    "message_colour": "#C026D3"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "sitting brown bear",
+    "art": [
+      "  _     _",
+      " (c).-.(c)",
+      "  / ._. \\",
+      "__\\( Y )/__",
+      "(.-/   \\-.)",
+      "   |___|"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#A16207",
+        "#8B5A2B"
+      ],
+      "direction": "vertical"
+    },
+    "message": "PERSEVERANCE.\nThe deploy failed six times. On the seventh, someone noticed it was pointed at staging.",
+    "message_colour": "#A16207"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "sleeping curled cat",
+    "art": [
+      " |\\__/,|   (`\\",
+      " |_ _  |.--.) )",
+      " ( T   )     /",
+      "(((^_(((/(((_/"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#F97316",
+        "#EA580C"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Thrilled to share that I've knocked my 1,000th mug off a desk. Here are 7 lessons it taught me about disruption. Agree?",
+    "message_colour": "#EA580C"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "green frog sitting",
+    "art": [
+      "   @..@",
+      "  (----)",
+      " ( >__< )",
+      " ^^ ~~ ^^"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#22C55E",
+        "#15803D"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Libra: Mercury is in retrograde, which is why your tests only fail on Tuesdays. Lucky number: 404. Avoid force-pushing to strangers.",
+    "message_colour": "#16A34A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "hovering flying saucer",
+    "art": [
+      "       _____",
+      "   ___/  o  \\___",
+      "  (_____________)",
+      "     /   |   \\"
+    ],
+    "speaker_col": 9,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#10B981",
+        "#06B6D4"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Field report: the humans built machines that write code, then spend all day arguing with them about indentation. Recommend we do not make contact.",
+    "message_colour": "#059669"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "orange fox face",
+    "art": [
+      "  /\\   /\\",
+      " /  \\_/  \\",
+      " \\ o   o /",
+      "  \\  ^  /",
+      "   \\_-_/"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#F97316",
+        "#DC2626"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Your fortune: soon you will be asked for an estimate. Whatever number you say will be wrong, and it will be quoted back to you in March.",
+    "message_colour": "#F97316"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "owl on a branch",
+    "art": [
+      "  ,___,",
+      "  {o,o}",
+      "  /)__)",
+      " --\"-\"--"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#A0662B",
+        "#8B5A2B"
+      ],
+      "direction": "vertical"
+    },
+    "message": "The bug: a typo\nin the file I swore was fine.\nLook, the sun is up.",
+    "message_colour": "#A0662B"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "floppy-eared dog",
+    "art": [
+      "  / \\__",
+      " (    @\\___",
+      " /         O",
+      "/   (_____/",
+      "/_____/   U"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#B45309",
+        "#92400E"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Hiring: Senior Engineer. Requires 10 years of experience in a framework released last year. Must be a team player, and also the entire team.",
+    "message_colour": "#B45309"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "whale spouting water",
+    "art": [
+      "       .",
+      "      \":\"",
+      "    ___:____     |\"\\/\"|",
+      "  ,'        `.    \\  /",
+      "  |  O        \\___/  |",
+      "~^~^~^~^~^~^~^~^~^~^~^~^~"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#38BDF8",
+        "#2563EB",
+        "#0891B2"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Here we see the developer in its natural habitat. It has said 'one last thing' four times. It will not sleep tonight. We must not intervene.",
+    "message_colour": "#2563EB"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "old computer monitor",
+    "art": [
+      " ________________",
+      "|  ____________  |",
+      "| | $ _        | |",
+      "| |____________| |",
+      "|________________|",
+      "      _|  |_",
+      "     |______|"
+    ],
+    "speaker_col": 8,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#22C55E",
+        "#16A34A"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Error: success. The operation completed successfully, which was not expected. Please try again until it fails properly.",
+    "message_colour": "#16A34A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "weary red crab",
+    "art": [
+      "    _~^~^~_",
+      "\\) /  o o  \\ (/",
+      "  '_   -   _'",
+      "  / '-----' \\"
+    ],
+    "speaker_col": 7,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#E8513A",
+        "#C2410C"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Status: the build is green. I did not change anything. I have decided not to ask questions.",
+    "message_colour": "#E8513A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "fish swimming right",
+    "art": [
+      "    ______",
+      "|\\ /      \\",
+      "| >  ))  o >",
+      "|/ \\______/"
+    ],
+    "speaker_col": 8,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#0EA5E9",
+        "#F97316"
+      ],
+      "direction": "horizontal"
+    },
+    "message": "Today's forecast: scattered meetings, clearing by 4pm. Heavy Slack in the afternoon. 70% chance of someone saying 'quick sync'.",
+    "message_colour": "#0EA5E9"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "slow walking turtle",
+    "art": [
+      "    _____     ____",
+      "   /      \\  |  o |",
+      "  |        |/ ___\\|",
+      "  |_________/",
+      "  |_|_| |_|_|"
+    ],
+    "speaker_col": 16,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#15803D",
+        "#65A30D"
+      ],
+      "direction": "vertical"
+    },
+    "message": "And we're forty minutes into the CI run. Lint has finished. The crowd is on its feet. The tests have not yet begun.",
+    "message_colour": "#15803D"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "classic penguin",
+    "art": [
+      "   .--.",
+      "  |o_o |",
+      "  |:_/ |",
+      " //   \\ \\",
+      "(|     | )",
+      "/'\\_   _/`\\",
+      "\\___)=(___/"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#4a6ad0",
+        "#4a6ad0",
+        "#e0a020",
+        "#4a6ad0",
+        "#4a6ad0",
+        "#e0a020",
+        "#e0a020"
+      ]
+    },
+    "message": "MAN WHO SAID 'IT'S A ONE-LINE CHANGE' ENTERS FOURTH DAY; LINE NOW 400 LINES LONG",
+    "message_colour": "#4a6ad0"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "whale carrying containers",
+    "art": [
+      "          ##        .",
+      "    ## ## ##       ==",
+      " ## ## ## ##      ===",
+      "/\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\\___/ ===",
+      "\\______ o          __/",
+      " \\    \\        __/",
+      "  \\____\\______/"
+    ],
+    "speaker_col": 8,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#3a9ad0",
+        "#2a6ac0"
+      ],
+      "direction": "vertical"
+    },
+    "message": "I carry forty containers. Three of them are your app. The other thirty-seven are images you pulled years ago and are now afraid to delete.",
+    "message_colour": "#2a7ac0"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "duck on a pond",
+    "art": [
+      "    __",
+      "  <(o )___",
+      "   ( ._> /",
+      "    `---'",
+      "  ~~~~~~~~~~"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#e0b020",
+        "#e0b020",
+        "#e0b020",
+        "#e0b020",
+        "#3a8ad0"
+      ]
+    },
+    "message": "Overheard at the pond: 'I'll just rebase real quick.' He has not been seen since. Sometimes we hear him, resolving the same conflict.",
+    "message_colour": "#c89a1a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "goldfish in a bowl",
+    "art": [
+      "  .-~~~~~~~~-.",
+      " /            \\",
+      "|   ><(((o>    |",
+      "|      o   o   |",
+      " \\            /",
+      "  '-.______.-'"
+    ],
+    "speaker_col": 9,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#3a8ad0",
+        "#3a8ad0",
+        "#e0742a",
+        "#3a9ad0",
+        "#3a8ad0",
+        "#3a8ad0"
+      ]
+    },
+    "message": "Every morning I find some dreadful code and run git blame. Every morning it says me. A short memory is a gift, but not a defence.",
+    "message_colour": "#e0742a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "owl on a perch",
+    "art": [
+      "   ,___,",
+      "   [O.O]",
+      "   /)__)",
+      "  -\"---\"-"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#b07a3a",
+        "#c08a2a",
+        "#a0682e",
+        "#7a8a3a"
+      ]
+    },
+    "message": "Exhibit B: a comment reading 'TODO: tidy this up later', dated 2016. Later has not yet arrived. Scholars remain divided on whether it ever will.",
+    "message_colour": "#b07a3a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "classic cowsay cow",
+    "art": [
+      "        ^__^",
+      "        (oo)\\_______",
+      "        (__)\\       )\\/\\",
+      "            ||----w |",
+      "            ||     ||"
+    ],
+    "speaker_col": 9,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#c08a3a",
+        "#a0603a"
+      ],
+      "direction": "horizontal"
+    },
+    "message": "FOR SALE: mechanical keyboard, very clicky, barely used. Reason for sale: housemate. Will swap for one quiet afternoon.",
+    "message_colour": "#b07a3a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "eager blue robot",
+    "art": [
+      "     _||_",
+      "   .[o  o].",
+      "   |  ==  |",
+      " _/'------'\\_",
+      "|  |  []  |  |",
+      "   |______|",
+      "    |_||_|"
+    ],
+    "speaker_col": 6,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#2aa0c0",
+        "#3a6ad0"
+      ],
+      "direction": "vertical"
+    },
+    "message": "You asked me to fix one typo. I have also rewritten your auth, renamed every file and formed opinions about your variable names. The typo is still there.",
+    "message_colour": "#2a90c0"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "weary red crab",
+    "art": [
+      " (\\/)      (\\/)",
+      "  \\ \\  oo  / /",
+      "   \\ \\_||_/ /",
+      "    \\(____)/",
+      "    /|    |\\"
+    ],
+    "speaker_col": 7,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#e8553a",
+        "#c2381f"
+      ],
+      "direction": "vertical"
+    },
+    "message": "I've been mid-refactor since 2019. The old code and the new code now live side by side, like two cats who have agreed never to make eye contact.",
+    "message_colour": "#d9472b"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "rusty boxy robot",
+    "art": [
+      "    [_]",
+      "  .-----.",
+      "  | o o |",
+      "  |  -  |",
+      "  '-----'",
+      " /|     |\\",
+      "  |_____|",
+      "   |   |"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#c0662a",
+        "#8a6a4a"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Release notes, v0.0.2\n- Renamed temp_fix to permanent_fix\n- No other changes. This was always the plan.",
+    "message_colour": "#c0662a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "smug ginger cat",
+    "art": [
+      "   /\\_/\\",
+      "  ( -.- )",
+      "   > ^ <",
+      "  /     \\",
+      " (__|_|__)~"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#e08a2a",
+        "#c06a1a"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Tip: if you knock the laptop off the desk, the bug goes with it. I have closed eleven tickets this way.",
+    "message_colour": "#d07a22"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "potted desk cactus",
+    "art": [
+      "      _",
+      "     | |  _",
+      "  _  | | | |",
+      " | |_| |_| |",
+      "  \\__| |__/",
+      "     | |",
+      "   [_____]",
+      "    \\___/"
+    ],
+    "speaker_col": 6,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#3aa04a",
+        "#3aa04a",
+        "#3aa04a",
+        "#3aa04a",
+        "#3aa04a",
+        "#3aa04a",
+        "#c0603a",
+        "#c0603a"
+      ]
+    },
+    "message": "Dear diary, day 212 on the desk. Watered once, by accident, with cold brew. Thriving, mostly out of spite.",
+    "message_colour": "#3a9a4a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "sitting brown bear",
+    "art": [
+      "   _     _",
+      "  (c).-.(c)",
+      "   / ._. \\",
+      " __\\( Y )/__",
+      "(_.-/'-'\\-._)",
+      "   ||   ||",
+      " _.' `-' '._",
+      "(.-./`-'\\.-.)",
+      " `-'     `-'"
+    ],
+    "speaker_col": 6,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#b0703a",
+        "#8a5a2a"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Quick fix, serves one:\n1. Take one bug.\n2. Wrap it in try/except.\n3. Leave the except empty.\n4. Ship warm. Keeps for years, unnoticed.",
+    "message_colour": "#a8682e"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "purple octopus",
+    "art": [
+      "    .-\"\"-.",
+      "   / o  o \\",
+      "   \\  __  /",
+      "  /(/ /\\ \\)\\",
+      " ( ( (  ) ) )",
+      "  ~ ~ ~~ ~ ~"
+    ],
+    "speaker_col": 6,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#c04a9a",
+        "#8a4ad0"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Status: typing on four keyboards at once. Two are in meetings, one is in Slack, one is in a Slack thread about the meetings. Code written: none.",
+    "message_colour": "#b04aa8"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "green sitting frog",
+    "art": [
+      "   @..@",
+      "  (----)",
+      " ( >__< )",
+      " ^^ ~~ ^^"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#4ab04a",
+        "#2a9a5a"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Q: Is it a bug or a feature?\nA: Whichever one happened during the demo.",
+    "message_colour": "#3aa04a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "tired cow",
+    "art": [
+      "        ^__^",
+      "        (==)\\_______",
+      "        (__)\\       )\\/\\",
+      "            ||----w |",
+      "            ||     ||"
+    ],
+    "speaker_col": 9,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#c0703a",
+        "#a05a4a"
+      ],
+      "direction": "vertical"
+    },
+    "message": "My password needs a capital, a number, a symbol and a feeling. I chose Moo#2. They made me change it. It is now Moo#3. Security has never been better.",
+    "message_colour": "#b8683a"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "dragon on gold hoard",
+    "art": [
+      "    /\\    /\\",
+      "   /  \\__/  \\",
+      "   \\ (o)(o) /",
+      "   <  \\__/  >",
+      "  /\\/  ''  \\/\\",
+      "  $$$$$$$$$$$$"
+    ],
+    "speaker_col": 7,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#3aa05a",
+        "#3aa05a",
+        "#3aa05a",
+        "#3aa05a",
+        "#3aa05a",
+        "#d0a020"
+      ]
+    },
+    "message": "Behold my hoard: 61 abandoned side projects, each with a lovely README and nothing else. Do not approach. I may start another.",
+    "message_colour": "#2e9a50"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "cat sitting very still",
+    "art": [
+      " /\\_/\\",
+      "( o.o )",
+      " > ^ <",
+      "(\")_(\")"
+    ],
+    "speaker_col": 3,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#E08A2E",
+        "#C0602A"
+      ],
+      "direction": "vertical"
+    },
+    "message": "LOST: one afternoon. Last seen entering a meeting called 'Brief alignment'. Answers to 'focus time'. If found, please do not schedule anything in it.",
+    "message_colour": "#D9772C"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "pink pig face",
+    "art": [
+      "  ^     ^",
+      " / \\___/ \\",
+      "|  o   o  |",
+      "|  (o o)  |",
+      " \\       /",
+      "  '-----'"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#E0709A",
+        "#C8507A"
+      ],
+      "direction": "vertical"
+    },
+    "message": "FOR SALE: eleven domain names, each bought at 2am for an app that would change everything. Apps not included. Neither is the 2am feeling.",
+    "message_colour": "#D0608A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "teddy bear sitting down",
+    "art": [
+      "   _     _",
+      "  (c).-.(c)",
+      "   / ._. \\",
+      " __\\( Y )/__",
+      "(_.-/'-'\\-._)",
+      "   || X ||",
+      " _.' `-' '._",
+      "(.-./`-'\\.-.)",
+      " `-'     `-'"
+    ],
+    "speaker_col": 6,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#B07840",
+        "#8A5A30"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Dear diary, today I automated a task that takes two minutes by hand. The script took six hours. I will break even in 2031, if nothing changes. Something will change.",
+    "message_colour": "#A06A38"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "monitor showing an error",
+    "art": [
+      " .------------.",
+      " | $ ./setup  |",
+      " | ERROR: ??? |",
+      " '------------'",
+      "      _||_",
+      "     [____]"
+    ],
+    "speaker_col": 7,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#5A7A9A",
+        "#2E9E58",
+        "#D0442E",
+        "#5A7A9A",
+        "#6A6A7A",
+        "#6A6A7A"
+      ]
+    },
+    "message": "Installation:\n1. Run setup.\n2. Read the error.\n3. Install what the error asked for.\n4. Read the new error.\n5. Repeat until Thursday.",
+    "message_colour": "#2E9E58"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "sleepy bunny dozing off",
+    "art": [
+      "        z",
+      "       Z",
+      "  (\\_/)",
+      "  (-.-)",
+      " (\")_(\")"
+    ],
+    "speaker_col": 4,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#6A7AD0",
+        "#6A7AD0",
+        "#9A8AB0",
+        "#9A8AB0",
+        "#8A7AA0"
+      ]
+    },
+    "message": "Once upon a time, a test failed, and the developer fixed the code instead of the test. Everyone lived happily ever after. Sleep now. It is only a story.",
+    "message_colour": "#6A70C8"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "wide-eyed brown owl",
+    "art": [
+      "  ,_,",
+      " (O,O)",
+      " (   )",
+      " -\"-\"-"
+    ],
+    "speaker_col": 3,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#C27A2C",
+        "#8B5A2B"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Review, 2 out of 5: bought a standing desk. Have stood at it twice, both times to reach the shelf above it. Lovely shelf, though.",
+    "message_colour": "#B8742A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "old green dinosaur",
+    "art": [
+      "        __",
+      "       / _)",
+      "  .-^^^-/ /",
+      " __/      /",
+      "<__.|_|-|_|"
+    ],
+    "speaker_col": 9,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#5AA845",
+        "#3D7A3A"
+      ],
+      "direction": "horizontal"
+    },
+    "message": "Legacy code (n.): code that makes money. See also: new code (n.), code that makes meetings.",
+    "message_colour": "#4C9A3E"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "snail with spiral shell",
+    "art": [
+      "        .---.",
+      "  o o  / .-. \\",
+      "  | |  | (@) |",
+      " (   )_\\ '-' /_",
+      "(______\\_____/_)"
+    ],
+    "speaker_col": 3,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#7AA040",
+        "#B07A3A"
+      ],
+      "direction": "horizontal"
+    },
+    "message": "9:02 'can you take a quick look at this?'\n9:02 'no rush'\n9:03 'any update?'",
+    "message_colour": "#8A9A3A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "green frog on lilypad",
+    "art": [
+      "  @..@",
+      " (----)",
+      "( >__< )",
+      "^^ ~~ ^^"
+    ],
+    "speaker_col": 3,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#3FAE4A",
+        "#2E8B57"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Fourteen tabs of docs.\nThe fix was in the README\nI did not open.",
+    "message_colour": "#2E9E48"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "eager little dog",
+    "art": [
+      "  __      _",
+      "o'')}____//",
+      " `_/      )",
+      " (_(_/-(_/"
+    ],
+    "speaker_col": 2,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#B5763A",
+        "#8E5A2E"
+      ],
+      "direction": "horizontal"
+    },
+    "message": "Quick question (n.): a question lasting forty minutes, ending with 'actually, can I share my screen?'",
+    "message_colour": "#A8692F"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "startled purple ghost",
+    "art": [
+      "  .-.",
+      " (o o)",
+      " | O |",
+      " |   |",
+      " '~~~'"
+    ],
+    "speaker_col": 3,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#9A6FD0",
+        "#6A4FB0"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Release notes, v3.0.0\n- Breaking: everything\n- Migration guide: coming soon\n- 'Coming soon': since v2.0.0",
+    "message_colour": "#8A5FC8"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "robot with antenna",
+    "art": [
+      "     |",
+      "   .-o-.",
+      "  | o o |",
+      "  | [_] |",
+      "  '-----'",
+      "   /| |\\"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#D04A3A",
+        "#2F9A8A"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Status report: three of four services healthy. The fourth is the one that checks whether the other three are healthy. Morale: unverified.",
+    "message_colour": "#2F9A8A"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "grey elephant face",
+    "art": [
+      " .--.     .--.",
+      "/    \\___/    \\",
+      "\\  |  o o  |  /",
+      " '-|  ( )  |-'",
+      "    \\ | | /",
+      "     '(_)'"
+    ],
+    "speaker_col": 7,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#7F8AA0",
+        "#5F6A85"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Overheard at stand-up: 'Same as yesterday.' He has said it every day since March. Nobody has checked what yesterday was.",
+    "message_colour": "#6A7896"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "small standing penguin",
+    "art": [
+      "   _",
+      " ('v')",
+      "//-=-\\\\",
+      "(\\_=_/)",
+      " ^^ ^^"
+    ],
+    "speaker_col": 3,
+    "colour": {
+      "mode": "lines",
+      "lines": [
+        "#E89B2A",
+        "#4A6FA5",
+        "#3B5B8C",
+        "#3B5B8C",
+        "#E89B2A"
+      ]
+    },
+    "message": "Dave, you are on mute.\nDave, you are still on mute, Dave.\nDave has left the call.",
+    "message_colour": "#4A6FA5"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "red crab, claws up",
+    "art": [
+      "    _~^~^~_",
+      "\\) /  o o  \\ (/",
+      "  '_   -   _'",
+      "  / '-----' \\"
+    ],
+    "speaker_col": 7,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#E04A3A",
+        "#B8322A"
+      ],
+      "direction": "vertical"
+    },
+    "message": "DEVELOPER UPDATES ONE DEPENDENCY; 212 OTHERS UPDATE IN SOLIDARITY; LOCKFILE NOW LONGER THAN THE APP",
+    "message_colour": "#D2402F"
+  },
+  {
+    "category": "evergreen",
+    "art_subject": "sly orange fox face",
+    "art": [
+      " /\\     /\\",
+      " | \\___/ |",
+      " \\ o   o /",
+      "  \\  v  /",
+      "   \\___/"
+    ],
+    "speaker_col": 5,
+    "colour": {
+      "mode": "gradient",
+      "stops": [
+        "#E8752A",
+        "#C4501E"
+      ],
+      "direction": "vertical"
+    },
+    "message": "Tip: name every variable 'data'. When someone asks what it holds, you can say 'data' with total honesty and walk away.",
+    "message_colour": "#E0692A"
+  }
+]
