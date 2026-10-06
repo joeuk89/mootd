@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"golang.org/x/sys/unix"
 	"golang.org/x/term"
 
 	"github.com/joeuk89/mootd/internal/greeting"
@@ -51,6 +52,8 @@ type Pool struct {
 	// Windows maps a terminal window to the ID of the greeting it last showed.
 	Windows    map[string]string `json:"windows,omitempty"`
 	Generation Generation        `json:"generation,omitzero"`
+	// Builtins is the version of the built-in greetings already added to this pool.
+	Builtins int `json:"builtins,omitempty"`
 }
 
 type Generation struct {
@@ -185,6 +188,29 @@ func (s *Store) AddBatch(greetings []greeting.Greeting, added time.Time, expiryD
 
 func (s *Store) archive(entries []Entry) error {
 	return appendLines(filepath.Join(s.dir, "archive.jsonl"), entries)
+}
+
+// SeedBuiltins adds the greetings that ship with the program. It skips any the
+// archive has seen before, so a built-in the user dropped stays gone after an upgrade.
+// Built-ins rank below fresh greetings: they are what shows when nothing newer is left.
+func (s *Store) SeedBuiltins(p *Pool, version int, greetings []greeting.Greeting) error {
+	archived, err := readLines[Entry](filepath.Join(s.dir, "archive.jsonl"))
+	if err != nil {
+		return err
+	}
+	known := map[string]bool{}
+	for _, e := range archived {
+		known[e.Greeting.ID] = true
+	}
+	var fresh []Entry
+	for _, g := range greetings {
+		if !known[g.ID] {
+			fresh = append(fresh, Entry{Greeting: g, Added: "builtin"})
+		}
+	}
+	p.Entries = append(p.Entries, fresh...)
+	p.Builtins = version
+	return s.archive(fresh)
 }
 
 // Archived finds a greeting that was once added, even if it has since expired or been removed.
@@ -421,7 +447,7 @@ func WindowKey() string {
 		if err := syscall.Fstat(fd, &st); err != nil {
 			continue
 		}
-		session, err := syscall.Getsid(0)
+		session, err := unix.Getsid(0)
 		if err != nil {
 			continue
 		}

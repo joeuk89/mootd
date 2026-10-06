@@ -320,3 +320,39 @@ func TestFailingFor(t *testing.T) {
 		t.Error("a success should stop the clock")
 	}
 }
+
+func TestSeedBuiltinsSkipsOnesSeenBefore(t *testing.T) {
+	s := &Store{dir: t.TempDir()}
+	v1 := []greeting.Greeting{{ID: "builtin-a"}, {ID: "builtin-b"}}
+	v2 := append(v1, greeting.Greeting{ID: "builtin-c"})
+
+	err := s.Update(func(p *Pool) error {
+		if err := s.SeedBuiltins(p, 1, v1); err != nil {
+			return err
+		}
+		p.Remove("builtin-a")
+		return s.SeedBuiltins(p, 2, v2)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = s.Update(func(p *Pool) error {
+		var ids []string
+		for _, e := range p.Entries {
+			ids = append(ids, e.Greeting.ID)
+		}
+		if got := strings.Join(ids, " "); got != "builtin-b builtin-c" || p.Builtins != 2 {
+			t.Errorf("pool = %q at version %d; the dropped built-in should not come back", got, p.Builtins)
+		}
+		today := entry("today", "2026-10-06", "")
+		p.Entries = append(p.Entries, today)
+		if got := p.Pick(now, anyFits, noShuffle); got.Greeting.ID != "today" {
+			t.Errorf("picked %s; a built-in should rank below today's greeting", got.Greeting.ID)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}

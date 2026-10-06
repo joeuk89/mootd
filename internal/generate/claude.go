@@ -19,7 +19,8 @@ type claude struct {
 	effort    string
 }
 
-func findClaude(configured string) (string, error) {
+// FindClaude locates the claude command: the configured path, then PATH, then the usual install places.
+func FindClaude(configured string) (string, error) {
 	if configured != "" {
 		return configured, nil
 	}

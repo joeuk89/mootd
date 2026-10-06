@@ -17,6 +17,7 @@ import (
 
 	"golang.org/x/term"
 
+	"github.com/joeuk89/mootd/internal/builtin"
 	"github.com/joeuk89/mootd/internal/config"
 	"github.com/joeuk89/mootd/internal/generate"
 	"github.com/joeuk89/mootd/internal/greeting"
@@ -33,7 +34,13 @@ const usage = `mootd prints an AI-written greeting each time you open a terminal
   mootd generate        Make a new batch now
   mootd status          Show the pool, the last generation and any errors
   mootd config          Edit the settings
+  mootd init            Set mootd up: check Claude Code, write the config, hook into your shell
+  mootd uninstall       Remove the shell hook; add --purge to delete settings and greetings too
+  mootd version         Print the version
 `
+
+// Set at build time by the release script.
+var version = "dev"
 
 // How long generation must have been failing before the greeting mentions it.
 const failureWarningAfter = 72 * time.Hour
@@ -61,6 +68,12 @@ func main() {
 		err = status()
 	case "config":
 		err = editConfig()
+	case "init":
+		err = initCommand(args)
+	case "uninstall":
+		err = uninstall(args)
+	case "version", "--version":
+		fmt.Println("mootd", version)
 	case "help", "-h", "--help":
 		fmt.Print(usage)
 	default:
@@ -95,6 +108,15 @@ func show() error {
 	generationDue, failing := false, false
 	err = st.Update(func(p *store.Pool) error {
 		now := time.Now()
+		if p.Builtins < builtin.Version {
+			greetings, err := builtin.Greetings()
+			if err != nil {
+				return err
+			}
+			if err := st.SeedBuiltins(p, builtin.Version, greetings); err != nil {
+				return err
+			}
+		}
 		// Claiming the attempt under the pool lock means that when several terminals
 		// open at once, only one of them starts a generation.
 		if p.Generation.Due(now) {

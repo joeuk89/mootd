@@ -1,0 +1,48 @@
+name: release
+
+# Pushing a tag like v0.1.0 builds the archives, publishes a GitHub release and
+# updates the Homebrew formula in joeuk89/homebrew-tap.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go test ./...
+
+      - name: Build the archives
+        run: scripts/build-release.sh "${GITHUB_REF_NAME#v}"
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/checksums.txt --generate-notes
+
+      - name: Update the Homebrew tap
+        env:
+          # A deploy key with write access to joeuk89/homebrew-tap.
+          TAP_DEPLOY_KEY: ${{ secrets.TAP_DEPLOY_KEY }}
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          mkdir -p ~/.ssh
+          printf '%s\n' "$TAP_DEPLOY_KEY" > ~/.ssh/tap
+          chmod 600 ~/.ssh/tap
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/tap -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+          git clone git@github.com:joeuk89/homebrew-tap.git tap
+          mkdir -p tap/Formula
+          scripts/formula.sh "$version" dist/checksums.txt > tap/Formula/mootd.rb
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/mootd.rb
+          git commit -m "mootd $version"
+          git push

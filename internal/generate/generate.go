@@ -55,7 +55,7 @@ type score struct {
 // Run makes one batch and adds it to the pool. It returns how many greetings it added.
 func (g *Generator) Run(ctx context.Context, now time.Time) (int, error) {
 	cfg := g.Config
-	bin, err := findClaude(cfg.ClaudeBin)
+	bin, err := FindClaude(cfg.ClaudeBin)
 	if err != nil {
 		return 0, err
 	}
